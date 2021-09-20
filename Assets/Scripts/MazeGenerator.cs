@@ -38,7 +38,7 @@ public class MazeGenerator : MonoBehaviour
     public void CameraMovement()
     {
         float size = _wallPrefab.transform.localScale.x;
-
+      
         Vector3 cameraPosition = Camera.main.transform.position;
         cameraPosition.x = Mathf.Round(_column / 1.5f) * size;
         cameraPosition.y = Mathf.Max(13, Mathf.Max(_row, _column) * 6.5f);
@@ -59,12 +59,11 @@ public class MazeGenerator : MonoBehaviour
     {
         float size = _wallPrefab.transform.localScale.x;
         _mazegrid = new MazeGrid[_row, _column];
-
+       
         for (int rows = 0; rows < _row; rows++)
         {
             for (int columns = 0; columns < _column; columns++)
             {   
-                //GameObject floorWall = Instantiate(_floorPrefab, new Vector3(columns * size, 0, -rows*size), Quaternion.identity);
                 GameObject upWall = Instantiate(_wallPrefab, new Vector3(columns * size, 1.75f, -rows * size+1.25f), Quaternion.identity);
                 GameObject downWall = Instantiate(_wallPrefab, new Vector3(columns*size,1.75f,-rows *size-1.25f), Quaternion.identity);
                 GameObject leftWall = Instantiate(_wallPrefab, new Vector3(columns * size -1.25f, 1.75f, -rows * size), Quaternion.Euler(0, 90.0f, 0));
@@ -76,7 +75,8 @@ public class MazeGenerator : MonoBehaviour
                 _mazegrid[rows, columns]._west = leftWall;
                 _mazegrid[rows, columns]._east = rightWall;
 
-                //floorWall.transform.parent = transform;
+
+                
                 upWall.transform.parent = transform;
                 downWall.transform.parent = transform;
                 leftWall.transform.parent = transform;
@@ -113,7 +113,7 @@ public class MazeGenerator : MonoBehaviour
         _currentcolumn = 0;
         _currentRow = 0;
         _scanComplete = false;
-        HuntAndKill();
+        SearchAndKill();
     }
 
     private void UpdateMaze()
@@ -134,19 +134,20 @@ public class MazeGenerator : MonoBehaviour
         GenerateGrid();
     }
 
-    private void HuntAndKill()
+    private void SearchAndKill()
     {
         _mazegrid[_currentcolumn, _currentRow].cellVisited = true;
 
         while (!_scanComplete)
         {
-            Walk();
+            Search();
             Hunt();
         }
         
     }
     private bool CheckUnvisitedNeighbours()
     {
+
         if (IsCellUnVisited(_currentRow - 1, _currentcolumn))
         {
             return true;
@@ -177,7 +178,7 @@ public class MazeGenerator : MonoBehaviour
         return false;
     }
 
-    private void Walk()
+    private void Search()
     {
         while (CheckUnvisitedNeighbours())
         {
@@ -300,9 +301,9 @@ public class MazeGenerator : MonoBehaviour
 
         while (!destroyed)
         {
-            float direction = Random.Range(0, 4);
+            float direction = Random.Range(1f, 3f);
 
-            if (direction == 0)
+            if (direction == 1)
             {
                 //updated mazegrid
                 if(_currentRow > 0 && _mazegrid[_currentRow - 1, _currentcolumn].cellVisited)
@@ -322,9 +323,10 @@ public class MazeGenerator : MonoBehaviour
                     destroyed = true;
                 }
             }
-            else if (direction == 1)
+            else if (direction == 2)
             {
-                if (_currentRow < _row - 1 && _mazegrid[_currentRow + 1, _currentcolumn].cellVisited)
+                bool check = _currentRow < _row - 1 && _mazegrid[_currentRow + 1, _currentcolumn].cellVisited;
+                if (check)
                 {
                     if (_mazegrid[_currentRow, _currentcolumn]._south)
                     {
@@ -338,7 +340,7 @@ public class MazeGenerator : MonoBehaviour
                     destroyed = true;
                 }
             }
-            else if (direction == 2)
+            else if (direction == 3)
             {
                 if (_currentcolumn > 0 && _mazegrid[_currentRow, _currentcolumn - 1].cellVisited)
                 {
@@ -354,7 +356,7 @@ public class MazeGenerator : MonoBehaviour
                     destroyed = true;
                 }
             }
-            else if (direction == 3)
+            else if (direction == 4)
             {
                 if (_currentcolumn < _column -1 && _mazegrid[_currentRow, _currentcolumn + 1].cellVisited)
                 {
