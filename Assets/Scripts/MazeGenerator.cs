@@ -19,8 +19,9 @@ public class MazeGenerator : MonoBehaviour
 
     private bool _scanComplete=false;
     
-    private float _duration=3.0f;
-    
+    private float _duration= 3.0f;
+   
+
     void Start()
     {
         _cam = GameObject.Find("Main Camera").GetComponent<Camera>();
@@ -171,7 +172,8 @@ public class MazeGenerator : MonoBehaviour
     private bool IsCellUnVisited(int row, int column)
     {
         //boundary check and visisted check
-        if (row >= 0 && row < _row && column >= 0 && column < _column && !_mazegrid[row, column].cellVisited)
+        bool check = row >= 0 && row < _row && column >= 0 && column < _column && !_mazegrid[row, column].cellVisited;
+        if (check)
         {
             return true;
         }
@@ -184,73 +186,114 @@ public class MazeGenerator : MonoBehaviour
         {
             float direction = Random.Range(1f, 4f);
 
-            if (direction == 1)
+            switch (direction)
             {
-                if (IsCellUnVisited(_currentRow - 1, _currentcolumn))
-                {
-                    if (_mazegrid[_currentRow, _currentcolumn]._north)
+                case 1:
+                    if (IsCellUnVisited(_currentRow - 1, _currentcolumn))
                     {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._north);
-                    }
+                        if (_mazegrid[_currentRow, _currentcolumn]._north)
+                        {
+                            DestroyWalls(1);
+                        }
 
-                    _currentRow--;
-                    _mazegrid[_currentRow, _currentcolumn].cellVisited = true;
+                        _currentRow--;
+                        _mazegrid[_currentRow, _currentcolumn].cellVisited = true;
 
-                    if (_mazegrid[_currentRow, _currentcolumn]._south)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._south);
+                        if (_mazegrid[_currentRow, _currentcolumn]._south)
+                        {
+                            DestroyWalls(3);
+                        }
                     }
-                }
-            }
-            else if (direction == 2)
-            {
-                if (IsCellUnVisited(_currentRow + 1, _currentcolumn))
-                {
-                    if (_mazegrid[_currentRow, _currentcolumn]._south)
+                    break;
+                case 2:
+                    if (IsCellUnVisited(_currentRow + 1, _currentcolumn))
                     {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._south);
+                        if (_mazegrid[_currentRow, _currentcolumn]._south)
+                        {
+                            DestroyWalls(3);
+                        }
+                        _currentRow++;
+                        _mazegrid[_currentRow, _currentcolumn].cellVisited = true;
+                         if (_mazegrid[_currentRow, _currentcolumn]._north)
+                         {
+                            
+                            DestroyWalls(1);
+                         }
                     }
-                    _currentRow++;
-                    _mazegrid[_currentRow, _currentcolumn].cellVisited = true;
-                    if (_mazegrid[_currentRow, _currentcolumn]._north)
+                    break;
+                case 3:
+                    if (IsCellUnVisited(_currentRow, _currentcolumn - 1))
                     {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._north);
-                    }
-                }
-            }
-            else if (direction == 3)
-            {
-                if (IsCellUnVisited(_currentRow, _currentcolumn - 1))
-                {
-                    if (_mazegrid[_currentRow, _currentcolumn]._west)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._west);
-                    }
-                    _currentcolumn--;
-                    _mazegrid[_currentRow, _currentcolumn].cellVisited = true;
+                        if (_mazegrid[_currentRow, _currentcolumn]._west)
+                        {
+                            DestroyWalls(5);
+                        }
+                        _currentcolumn--;
+                        _mazegrid[_currentRow, _currentcolumn].cellVisited = true;
 
-                    if (_mazegrid[_currentRow, _currentcolumn]._east)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._east);
+                        if (_mazegrid[_currentRow, _currentcolumn]._east)
+                        {
+                            DestroyWalls(7);
+                        }
                     }
-                }
+                    break;
+                case 4:
+                    if (IsCellUnVisited(_currentRow, _currentcolumn + 1))
+                    {
+                        if (_mazegrid[_currentRow, _currentcolumn]._east)
+                        {
+                            DestroyWalls(7);
+                        }
+                        _currentcolumn++;
+                        _mazegrid[_currentRow, _currentcolumn].cellVisited = true;
+                        if (_mazegrid[_currentRow, _currentcolumn]._west)
+                        {
+                            DestroyWalls(5);
+                        }
+                    }
+                    break;       
             }
-            else if (direction == 4)
-            {
-                if (IsCellUnVisited(_currentRow, _currentcolumn + 1))
-                {
-                    if (_mazegrid[_currentRow, _currentcolumn]._east)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._east);
-                    }
-                    _currentcolumn++;
-                    _mazegrid[_currentRow, _currentcolumn].cellVisited = true;
-                    if (_mazegrid[_currentRow, _currentcolumn]._west)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._west);
-                    }
-                }
-            }
+
+        }
+    }
+
+    private void DestroyWalls(int indexWallToBreak)
+    {
+      
+        switch (indexWallToBreak)
+        {   
+            case 1:
+                
+                Destroy(_mazegrid[_currentRow, _currentcolumn]._north);
+                break;
+            case 2:
+                
+                Destroy(_mazegrid[_currentRow - 1, _currentcolumn]._south);
+                break;
+            case 3:
+                
+                Destroy(_mazegrid[_currentRow, _currentcolumn]._south);
+                break;
+            case 4:
+                
+                Destroy(_mazegrid[_currentRow + 1, _currentcolumn]._north);
+                break;
+            case 5:
+                
+                Destroy(_mazegrid[_currentRow, _currentcolumn]._west);
+                break;
+            case 6:
+                
+                Destroy(_mazegrid[_currentRow, _currentcolumn - 1]._east);
+                break;
+            case 7:
+                
+                Destroy(_mazegrid[_currentRow, _currentcolumn]._east);
+                break;
+            case 8:
+                
+                Destroy(_mazegrid[_currentRow, _currentcolumn + 1]._west);
+                break;
         }
     }
 
@@ -301,76 +344,78 @@ public class MazeGenerator : MonoBehaviour
 
         while (!destroyed)
         {
-            float direction = Random.Range(1f, 3f);
+            float direction = Random.Range(1f, 4f);
 
-            if (direction == 1)
+
+            switch (direction)
             {
-                //updated mazegrid
-                if(_currentRow > 0 && _mazegrid[_currentRow - 1, _currentcolumn].cellVisited)
-                {
+                case 1:
+                    if (_currentRow > 0 && _mazegrid[_currentRow - 1, _currentcolumn].cellVisited)
+                    {
 
-                    if (_mazegrid[_currentRow, _currentcolumn]._north)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._north);
-                    }
+                        if (_mazegrid[_currentRow, _currentcolumn]._north)
+                        {
+                            DestroyWalls(1);
+                        }
 
-                    if (_mazegrid[_currentRow - 1, _currentcolumn]._south)
-                    {
-                        Destroy(_mazegrid[_currentRow - 1, _currentcolumn]._south);
-                    }
-                    
-                    
-                    destroyed = true;
-                }
-            }
-            else if (direction == 2)
-            {
-                bool check = _currentRow < _row - 1 && _mazegrid[_currentRow + 1, _currentcolumn].cellVisited;
-                if (check)
-                {
-                    if (_mazegrid[_currentRow, _currentcolumn]._south)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._south);
-                    }
-                    if (_mazegrid[_currentRow + 1, _currentcolumn]._north)
-                    {
-                        Destroy(_mazegrid[_currentRow + 1, _currentcolumn]._north);
-                    }
+                        if (_mazegrid[_currentRow - 1, _currentcolumn]._south)
+                        {
+                            DestroyWalls(2);
+                        }
 
-                    destroyed = true;
-                }
-            }
-            else if (direction == 3)
-            {
-                if (_currentcolumn > 0 && _mazegrid[_currentRow, _currentcolumn - 1].cellVisited)
-                {
-                    if (_mazegrid[_currentRow, _currentcolumn]._west)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._west);
+                        destroyed = true;
                     }
-                    if (_mazegrid[_currentRow, _currentcolumn - 1]._east)
+                    break;
+                case 2:
+                    bool check = _currentRow < _row - 1 && _mazegrid[_currentRow + 1, _currentcolumn].cellVisited;
+                    if (check)
                     {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn - 1]._east);
-                    }
+                        if (_mazegrid[_currentRow, _currentcolumn]._south)
+                        {
+                            DestroyWalls(3);
+                        }
+                        if (_mazegrid[_currentRow + 1, _currentcolumn]._north)
+                       {
+                            DestroyWalls(4);
+                        }
 
-                    destroyed = true;
-                }
-            }
-            else if (direction == 4)
-            {
-                if (_currentcolumn < _column -1 && _mazegrid[_currentRow, _currentcolumn + 1].cellVisited)
-                {
-                    if (_mazegrid[_currentRow, _currentcolumn]._east)
-                    {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn]._east);
+                        destroyed = true;
                     }
-                    if (_mazegrid[_currentRow, _currentcolumn + 1]._west)
+                    break;
+                case 3:
+                    if (_currentcolumn > 0 && _mazegrid[_currentRow, _currentcolumn - 1].cellVisited)
                     {
-                        Destroy(_mazegrid[_currentRow, _currentcolumn + 1]._west);
+                        if (_mazegrid[_currentRow, _currentcolumn]._west)
+                        {
+
+                            DestroyWalls(5);
+                        }
+                        if (_mazegrid[_currentRow, _currentcolumn - 1]._east)
+                        {
+                            DestroyWalls(6);
+                        }
+
+                        destroyed = true;
                     }
-                  
-                    destroyed = true;
-                }
+                    break;
+                case 4:
+                    if (_currentcolumn < _column - 1 && _mazegrid[_currentRow, _currentcolumn + 1].cellVisited)
+                    {
+                        if (_mazegrid[_currentRow, _currentcolumn]._east)
+                        {
+                            DestroyWalls(7);
+                        }
+                        if (_mazegrid[_currentRow, _currentcolumn + 1]._west)
+                        {
+                            DestroyWalls(8);
+                        }
+
+                        destroyed = true;
+                    }
+                    break;
+
+                default:
+                    break;
             }
         }
     }
